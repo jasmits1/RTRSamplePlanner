@@ -1,44 +1,53 @@
 ﻿using MauiReactor;
+using RTRSamplePlanner.Data;
+using RTRSamplePlanner.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RTRSamplePlanner.Pages
 {
+
+    enum PageState
+    {
+        Home,
+        List,
+        New,
+    }
     internal class MainPageState
     {
-        public int Counter { get; set; }
+        public PageState CurrentPage { get; set; }
     }
 
-    internal class MainPage : Component<MainPageState>
+    partial class MainPage : Component<MainPageState>
     {
+        [Inject]
+        PlannerDatabase db;
+
+        protected override async void OnMounted()
+        {
+            base.OnMounted();
+            db = new PlannerDatabase();
+            List<PlannerEvent> l = await db.GetAllEventsAsync();
+        }
+
         public override VisualNode Render()
-            => ContentPage(
-                    ScrollView(
-                        VStack(
-                            Image("dotnet_bot.png")
-                                .HeightRequest(200)
-                                .HCenter()
-                                .Set(MauiControls.SemanticProperties.DescriptionProperty, "Cute dot net bot waving hi to you!"),
+            => new Shell()
+            {
+                new FlyoutItem("All Events")
+                {
+                    new ShellContent()
+                        .RenderContent(() => new FullList()),
+                },
 
-                            Label("Hello, World!")
-                                .FontSize(32)
-                                .HCenter(),
-
-                            Label("Welcome to MauiReactor: MAUI with superpowers!")
-                                .FontSize(18)
-                                .HCenter(),
-
-                            Button(State.Counter == 0 ? "Click me" : $"Clicked {State.Counter} times!")
-                                .OnClicked(() => SetState(s => s.Counter++))
-                                .HCenter()
-                    )
-                    .VCenter()
-                    .Spacing(25)
-                    .Padding(30, 0)
-                )
-            );
+                new FlyoutItem("Today")
+                {
+                    new ShellContent()
+                        .RenderContent(() => new ContentPage("Page 2"))
+                }
+            };
     }
 }

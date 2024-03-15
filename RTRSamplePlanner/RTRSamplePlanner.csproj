@@ -66,6 +66,8 @@
   <ItemGroup>
     <PackageReference Include="Reactor.Maui" Version="2.0.*" />
     <PackageReference Include="Reactor.Maui.Canvas" Version="2.0.*" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.8" />
   </ItemGroup>
 
 </Project>

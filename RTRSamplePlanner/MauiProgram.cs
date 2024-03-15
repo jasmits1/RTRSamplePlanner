@@ -1,5 +1,7 @@
 ﻿using MauiReactor;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RTRSamplePlanner.Data;
 using RTRSamplePlanner.Pages;
 
 
@@ -24,7 +26,9 @@ namespace RTRSamplePlanner
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-SemiBold.ttf", "OpenSansSemiBold");
                 });
+            builder.Services.AddSingleton<MainPage>();
 
+            builder.Services.AddSingleton<PlannerDatabase>();
 #if DEBUG
         		builder.Logging.AddDebug();
 #endif
