@@ -1,5 +1,7 @@
 ﻿using MauiReactor;
 using Microsoft.Extensions.Logging;
+using ReactorData.Sqlite;
+using RTRSamplePlanner.Model;
 using RTRSamplePlanner.Pages;
 
 
@@ -24,7 +26,16 @@ namespace RTRSamplePlanner
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-SemiBold.ttf", "OpenSansSemiBold");
                 });
-
+           
+            builder.Services.AddReactorDataWithSqlite(
+                connectionString: $"Data Source={Constants.DatabasePath}",
+                configure: _ => _.Model<PlannerEvent>(),
+                modelContextConfigure: options =>
+                { 
+                    options.ConfigureContext = context => context.Load<PlannerEvent>();
+                });
+            
+               
 #if DEBUG
         		builder.Logging.AddDebug();
 #endif

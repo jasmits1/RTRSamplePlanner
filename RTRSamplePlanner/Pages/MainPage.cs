@@ -1,44 +1,70 @@
 ﻿using MauiReactor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RTRSamplePlanner.Pages
 {
+
+    enum PageState
+    {
+        Home,
+        List,
+        New,
+    }
     internal class MainPageState
     {
-        public int Counter { get; set; }
+        public PageState CurrentPage { get; set; }
     }
 
-    internal class MainPage : Component<MainPageState>
+    partial class MainPage : Component<MainPageState>
     {
+
+        private MauiControls.Shell? _shell;
+
+        protected override void OnMounted()
+        {
+            Routing.RegisterRoute<EditEventPage>();
+            base.OnMounted();
+        }
+
+        private void UpdateStatusBarAppearance()
+        {
+#if ANDROID
+    MainActivity.SetWindowTheme(false);
+#endif
+        }
+
         public override VisualNode Render()
-            => ContentPage(
-                    ScrollView(
-                        VStack(
-                            Image("dotnet_bot.png")
-                                .HeightRequest(200)
-                                .HCenter()
-                                .Set(MauiControls.SemanticProperties.DescriptionProperty, "Cute dot net bot waving hi to you!"),
+            => Shell(shell => _shell = shell,
+                new FlyoutItem("Today's Events")
+                {
+                    new ShellContent()
+                        .RenderContent(
+                            () => new TodayPage()
+                                .OnCreateEvent(OnAddEvent)
+                        )
+                },
+                new FlyoutItem("All Events")
+                {
+                        new ShellContent()
+                            .RenderContent(
+                                () => new FullList()
+                                    .OnCreateEvent(OnAddEvent)
+                                    .OnEditEvent(eventId => OnEditEvent(eventId))
+                            )
+                }
+          
+            )    
+            .OnAppearing(UpdateStatusBarAppearance);
 
-                            Label("Hello, World!")
-                                .FontSize(32)
-                                .HCenter(),
+        private async void OnAddEvent()
+        {
+            await _shell!.GoToAsync<EditEventPage>();
+        }
 
-                            Label("Welcome to MauiReactor: MAUI with superpowers!")
-                                .FontSize(18)
-                                .HCenter(),
+        private async void OnEditEvent(int eventId)
+        {    
+            await _shell!.GoToAsync<EditEventPage, EditEventProps>(props => props.EventId = eventId);
+            
 
-                            Button(State.Counter == 0 ? "Click me" : $"Clicked {State.Counter} times!")
-                                .OnClicked(() => SetState(s => s.Counter++))
-                                .HCenter()
-                    )
-                    .VCenter()
-                    .Spacing(25)
-                    .Padding(30, 0)
-                )
-            );
+        }
     }
 }
