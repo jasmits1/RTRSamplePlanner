@@ -1,12 +1,4 @@
 ﻿using MauiReactor;
-using RTRSamplePlanner.Data;
-using RTRSamplePlanner.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RTRSamplePlanner.Pages
 {
@@ -24,30 +16,55 @@ namespace RTRSamplePlanner.Pages
 
     partial class MainPage : Component<MainPageState>
     {
-        [Inject]
-        PlannerDatabase db;
 
-        protected override async void OnMounted()
+        private MauiControls.Shell? _shell;
+
+        protected override void OnMounted()
         {
+            Routing.RegisterRoute<EditEventPage>();
             base.OnMounted();
-            db = new PlannerDatabase();
-            List<PlannerEvent> l = await db.GetAllEventsAsync();
+        }
+
+        private void UpdateStatusBarAppearance()
+        {
+#if ANDROID
+    MainActivity.SetWindowTheme(false);
+#endif
         }
 
         public override VisualNode Render()
-            => new Shell()
-            {
+            => Shell(shell => _shell = shell,
+                new FlyoutItem("Today's Events")
+                {
+                    new ShellContent()
+                        .RenderContent(
+                            () => new TodayPage()
+                                .OnCreateEvent(OnAddEvent)
+                        )
+                },
                 new FlyoutItem("All Events")
                 {
-                    new ShellContent()
-                        .RenderContent(() => new FullList()),
-                },
-
-                new FlyoutItem("Today")
-                {
-                    new ShellContent()
-                        .RenderContent(() => new ContentPage("Page 2"))
+                        new ShellContent()
+                            .RenderContent(
+                                () => new FullList()
+                                    .OnCreateEvent(OnAddEvent)
+                                    .OnEditEvent(eventId => OnEditEvent(eventId))
+                            )
                 }
-            };
+          
+            )    
+            .OnAppearing(UpdateStatusBarAppearance);
+
+        private async void OnAddEvent()
+        {
+            await _shell!.GoToAsync<EditEventPage>();
+        }
+
+        private async void OnEditEvent(int eventId)
+        {    
+            await _shell!.GoToAsync<EditEventPage, EditEventProps>(props => props.EventId = eventId);
+            
+
+        }
     }
 }

@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SQLite;
+using ReactorData;
 
 namespace RTRSamplePlanner.Model
 {
-    public class PlannerEvent
+    [Model]
+    partial class PlannerEvent
     {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
+        public PlannerEvent() { }
+
+        public PlannerEvent(PlannerEvent newEvent) 
+        {
+            this.Id = newEvent.Id;
+            this.Name = newEvent.Name;  
+            this.Description = newEvent.Description;    
+            this.Date = newEvent.Date;
+            this.Location = newEvent.Location;
+        }
+        public int Id { get; set; }
 
         public string Name { get; set; }
 
